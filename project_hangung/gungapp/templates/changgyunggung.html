@@ -1,0 +1,602 @@
+{% extends 'index.html' %}
+{% block title %}<title>창경궁</title>{% endblock title %}
+{% block mycss %}
+<style>
+* {font-family: 'arirang';}
+.map_wrap, .map_wrap * {margin:0;padding:0;font-family:'arirang';font-size:12px;}
+.map_wrap a, .map_wrap a:hover, .map_wrap a:active{color:#000;text-decoration: none;}
+.map_wrap {position:relative;width:100%;height:500px;}
+#menu_wrap {position:absolute;top:0;left:0;bottom:0;width:250px;margin:10px 0 30px 10px;padding:5px;overflow-y:auto;background:rgba(255, 255, 255, 0.7);z-index: 1;font-size:12px;border-radius: 10px;}
+.bg_white {background:#fff;}
+#menu_wrap hr {display: block; height: 1px;border: 0; border-top: 2px solid #5F5F5F;margin:3px 0;}
+#menu_wrap .option{text-align: center;}
+#menu_wrap .option p {margin:10px 0;}
+#menu_wrap .option button {margin-left:5px;}
+#placesList li {list-style: none;}
+#placesList .item {position:relative;border-bottom:1px solid #888;overflow: hidden;cursor: pointer;min-height: 65px;}
+#placesList .item span {display: block;margin-top:4px;}
+#placesList .item h5, #placesList .item .info {text-overflow: ellipsis;overflow: hidden;white-space: nowrap;}
+#placesList .item .info{padding:10px 0 10px 55px;}
+#placesList .info .gray {color:#8a8a8a;}
+#placesList .info .jibun {padding-left:26px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_jibun.png) no-repeat;}
+#placesList .info .tel {color:#009900;}
+#placesList .item .markerbg {float:left;position:absolute;width:36px; height:37px;margin:10px 0 0 10px;background:url(https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png) no-repeat;}
+#placesList .item .marker_1 {background-position: 0 -10px;}
+#placesList .item .marker_2 {background-position: 0 -56px;}
+#placesList .item .marker_3 {background-position: 0 -102px}
+#placesList .item .marker_4 {background-position: 0 -148px;}
+#placesList .item .marker_5 {background-position: 0 -194px;}
+#placesList .item .marker_6 {background-position: 0 -240px;}
+#placesList .item .marker_7 {background-position: 0 -286px;}
+#placesList .item .marker_8 {background-position: 0 -332px;}
+#placesList .item .marker_9 {background-position: 0 -378px;}
+#placesList .item .marker_10 {background-position: 0 -423px;}
+#placesList .item .marker_11 {background-position: 0 -470px;}
+#placesList .item .marker_12 {background-position: 0 -516px;}
+#placesList .item .marker_13 {background-position: 0 -562px;}
+#placesList .item .marker_14 {background-position: 0 -608px;}
+#placesList .item .marker_15 {background-position: 0 -654px;}
+#pagination {margin:10px auto;text-align: center;}
+#pagination a {display:inline-block;margin-right:10px;}
+#pagination .on {font-weight: bold; cursor: default;color:#777;}
+
+<!-- 추가  css -->
+.py-5 h1{
+font-family : 'arirang';
+}
+
+.py-5 p, .py-5 h2 {
+font-family : 'arirang';
+
+}.fs-7 {
+  font-size: 0.8rem !important;
+}
+
+.py-5 a{
+text-decoration-line: none;
+font-family : 'arirang';
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    background-color: #000000;
+    opacity: 0.5;
+}
+.dropdown-menu li a{
+    text-decoration-line: none;
+}
+<!-- 추가  css 끝-->
+</style>
+{% endblock mycss %}
+{% block content %}
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+            <div class="container px-4 px-lg-5">
+                <a style="font-family:'arirang_basic';color:black" class="navbar-brand" href="/">HANGUNG</a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown"><a style="color:black" class="nav-link" href="#Information">궁</a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownCategoryMenu">
+                                <li><a href="/gungapp/gyungbokgung/"> 경복궁</a></li>
+                                <li><a href="/gungapp/changdukgung/"> 창덕궁</a></li>
+                                <li><a href="/gungapp/changgyunggung/">창경궁</a></li>
+                                <li><a href="/gungapp/duksugung"> 덕수궁</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item"><a style="color:black" class="nav-link" href="#rentalmap">한복대여점(Hanbokrental)</a></li>
+                        <li class="nav-item"><a style="color:black" class="nav-link" href="#cafeteria">cafeteria</a></li>
+                        <li class="nav-item"><a style="color:black" class="nav-link" href="/forum/">게시판</a></li>
+                        <li class="nav-item ">
+                            {% if user.is_authenticated %}
+                            <a style="color:black" style="color:black" class="nav-link" href="{% url 'common:logout' %}?next={{ request.path }}">{{ user.username }} (로그아웃)</a>
+                            {% else %}
+                            <a style="color:black" style="color:black" class="nav-link" href="{% url 'common:login' %}?next={{ request.path }}">로그인</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+{% endblock %}
+
+
+{% block main-top %}
+        <!-- 가저가야할 부분 시작 -->
+        <!-- 메인 상단-->
+        <p><br><br></p>
+        <section class="py-5" id="page-top">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="row gx-4 gx-lg-5 align-items-center">
+                    <div class="col-md-4">
+                        <h1 class="display-5 fw-bolder align-items-left">창경궁</h1>
+                    </div>
+                </div>
+                <div class="row gx-4 gx-lg-5 align-items-center">
+                    <div class="col-md-8"><img class="card-img-top mb-5 mb-md-0" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090100.jpg" alt="..." />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="lead2 fw-bolder fs-7" >주소</p>
+                                <p class="fs-7">(우 : 03072) 서울특별시 종로구 창경궁로 185</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="lead2 fw-bolder fs-7">전화번호</p>
+                                <p class="fs-7">(02) 762 - 4868~9</p><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="lead fw-bolder" >관람시간</p><br>
+                        <p>09:00 ~ 17:00, 18:30 (월요일 휴궁)</p>
+                        <p>(계절별 1시간 30분의 마감 편차가 있습니다.)</p><br>
+                        <p class="lead fw-bolder">관람해설</p>
+                        <p>한국어 : 10:30, 11:30, 13:00, 13:30, 14:30, 15:30, 16:30</p>
+                        <p>영어 : 11:00, 16:00 중국어 : 09:30, 15:00</p>
+                        <p>일본어 : 10:00, 14:00</p><br>
+                        <p class="lead fw-bolder" >주변 역 및 교통편</p><br>
+                        <p>4호선 혜화역 4번출구 약 10분</p>
+                        <p class="fw-bolder">도착 버스 노선</p>
+                        <p>100, 102, 104, 106, 107, 108, 140, 143, 150, 151, 160, 162, 171, 172, 272, 301, 601, 710, 6011 </p><br>
+
+
+                        <div class="d-flex">
+                            <a href="https://cgg.cha.go.kr/agapp/public/BASICS/JuvenileOrganizationCalendar.do?pageNo=77010000&siteCd=CGG"> <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                                예약하기
+                            </button>
+                            </a>
+                            <a href="https://cgg.cha.go.kr/agapp/main/index.do?siteCd=CGG"> <button class="btn btn-outline-dark flex-shrink-0" type="button">
+                                창경궁 홈페이지
+                            </button></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 메인 상단 끝-->
+        <!-- 사진 및 설명 시작-->
+        <section class="py-5 bg-light" id="photo">
+            <div class="container px-4 px-lg-5 mt-5">
+
+                <div class="container px-4 px-lg-5 my-5">
+                                    <div class="row gx-4 gx-lg-5 align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="fw-bolder mb-4">사진</h2>
+                    </div>
+                    <div class="col-md-4">
+                        <h2 class="fw-bolder mb-4">경복궁 설명</h2>
+                    </div>
+                </div>
+                    <div class="row gx-2 gx-lg-5 align-items-center">
+                        <div class="col-md-8">
+
+                            <div class="row gx-3 gx-lg-3 row-cols-2 row-cols-md-2 ">
+
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090301.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090301.jpg');" alt="..." />
+                                </div>
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090600.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090600.jpg');" alt="..." />
+                                </div>
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090500.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090500.jpg');" alt="..." />
+                                </div>
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090503.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090503.jpg');" alt="..." />
+                                </div>
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090506.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090506.jpg');" alt="..." />
+                                </div>
+                                <div class="col mb-5">
+                                    <img class="card-img-top" src="http://www.heritage.go.kr/unisearch/images/history_site/2021070809090201.jpg" onclick="window.open('http://www.heritage.go.kr/unisearch/images/history_site/2021070809090201.jpg');" alt="..." />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <p> 창경궁은 성종 14년(1483)에 세조비 정희왕후, 예종비 안순왕후, 덕종비(추존왕) 소혜왕후 세분의 대비를 모시기 위해 옛 수강궁터에 창건한 궁이다. 수강궁이란 세종 즉위년 1418년, 세종이 상왕으로 물러난 태종의 거처를 위해서 마련한 궁이다. </p><br>
+                            <p> 창경궁은 창덕궁과 연결되어 동궐이라는 하나의 궁역을 형성하면서, 독립적인 궁궐의 역할을 함과 동시에 창덕궁의 모자란 주거공간을 보충해주는 역할을 하였다. 성종대 창건된 창경궁은 선조 25년(1592) 임진왜란으로 모든 전각이 소실되었고, 광해군 8년(1616)에 재건되었다. </p><br>
+                            <p> 그러나 인조2년(1624) 이괄의 난과 순조30년(1830) 대화재로 인하여 내전이 소실되었다. 화재에서 살아남은 명정전, 명정문, 홍화문은 17세기 조선시대 건축양식을 보여주며, 정전인 명정전은 조선왕궁 법전 중에서 가장 오래된 건물이다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 사진 및 설명 종료 -->
+        <!-- 지도 시작 -->
+        <section class="py-5" id="mainmap">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="row gx-4 gx-lg-5 align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="fw-bolder mb-4">내부지도</h2>
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="fw-bolder mb-4">근방지도</h2>
+                    </div>
+                </div>
+                <div class="row gx-4 gx-lg-5 align-items-center">
+                    <div class="col-md-6">
+                        <img class="card-img-top mb-5 mb-md-0" src="/static/asset/창경궁내부시설.jpg" onclick="window.open('/static/asset/창경궁내부시설.jpg');" alt="..." />
+                    </div>
+                    <div class="col-md-6">
+                        <div id="map" style="width:500px;height:400px;"></div>
+	                        <script  src="//dapi.kakao.com/v2/maps/sdk.js?appkey=11ff8db05b8a452d6fbbbff92d068209&libraries=services"></script>
+	                    <script>
+		                    var container = document.getElementById('map');
+		                    var options = {
+			                center: new kakao.maps.LatLng(37.580756, 126.995226),
+			                level: 4
+		                    };
+
+		                    var map = new kakao.maps.Map(container, options);
+	                    </script>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 지도 종료 -->
+{% endblock main-top%}
+
+
+{% block rentalmap %}
+<section class="py-5 bg-light" id="rentalmap">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="row gx-4 gx-lg-5 align-items-center">
+            <h2 style="color: black;">{{gung}} 근처 한복 대여점 지도</h2>
+            <!-- 지도 -->
+            <div class="row">
+                <div class="col-md-4 mt-5">
+                    <div class="map_wrap">
+                        <div id="menu_wrap" class="bg_white">
+                            {{gung}} 한복 대여점
+                            <hr>
+                            <ul id="placesList"></ul>
+                            <div id="pagination"></div>
+                        </div>
+                   </div>
+                </div>
+                <div class="col-md-8 mt-5">
+                    <div id="map1" style="width:100%;height:475px;position:relative;overflow:hidden;"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+var markers = [];
+
+var mapContainer = document.getElementById('map1'),
+    mapOption = {
+        center: new kakao.maps.LatLng(37.57904921648744, 126.99485317163106),
+        level: 5
+    };
+
+var map1 = new kakao.maps.Map(mapContainer, mapOption);
+
+var ps = new kakao.maps.services.Places();
+
+var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+searchPlaces();
+
+function searchPlaces() {
+
+    var keyword = '창경궁 한복 대여점';
+
+    ps.keywordSearch( keyword, placesSearchCB);
+}
+
+function placesSearchCB(data, status, pagination) {
+    if (status === kakao.maps.services.Status.OK) {
+
+        displayPlaces(data);
+
+        displayPagination(pagination);
+
+    }
+}
+
+function displayPlaces(places) {
+
+    var listEl = document.getElementById('placesList'),
+    menuEl = document.getElementById('menu_wrap'),
+    fragment = document.createDocumentFragment(),
+    bounds = new kakao.maps.LatLngBounds(),
+    listStr = '';
+
+    removeAllChildNods(listEl);
+
+    removeMarker();
+
+    for ( var i=0; i < places.length; i++ ) {
+
+        var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
+            marker = addMarker(placePosition, i),
+            itemEl = getListItem(i, places[i]);
+
+        bounds.extend(placePosition);
+
+        (function(marker, title) {
+            kakao.maps.event.addListener(marker, 'mouseover', function() {
+                displayInfowindow(marker, title);
+            });
+
+            kakao.maps.event.addListener(marker, 'mouseout', function() {
+                infowindow.close();
+            });
+
+            itemEl.onmouseover =  function () {
+                displayInfowindow(marker, title);
+            };
+
+            itemEl.onmouseout =  function () {
+                infowindow.close();
+            };
+        })(marker, places[i].place_name);
+
+        fragment.appendChild(itemEl);
+    }
+
+    listEl.appendChild(fragment);
+    menuEl.scrollTop = 0;
+
+    map1.setBounds(bounds);
+}
+
+function getListItem(index, places) {
+
+    var el = document.createElement('li'),
+    itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
+                '<div class="info">' +
+                '   <h5>' + places.place_name + '</h5>';
+
+    if (places.road_address_name) {
+        itemStr += '    <span>' + places.road_address_name + '</span>' +
+                    '   <span class="jibun gray">' +  places.address_name  + '</span>';
+    } else {
+        itemStr += '    <span>' +  places.address_name  + '</span>';
+    }
+
+      itemStr += '  <span class="tel">' + places.phone  + '</span>' +
+                '</div>';
+
+    el.innerHTML = itemStr;
+    el.className = 'item';
+
+    return el;
+}
+
+function addMarker(position, idx, title) {
+    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png',
+        imageSize = new kakao.maps.Size(36, 37),
+        imgOptions =  {
+            spriteSize : new kakao.maps.Size(36, 691),
+            spriteOrigin : new kakao.maps.Point(0, (idx*46)+10),
+            offset: new kakao.maps.Point(13, 37)
+        },
+        markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
+            marker = new kakao.maps.Marker({
+            position: position,
+            image: markerImage
+        });
+
+    marker.setMap(map1);
+    markers.push(marker);
+
+    return marker;
+}
+
+function removeMarker() {
+    for ( var i = 0; i < markers.length; i++ ) {
+        markers[i].setMap(null);
+    }
+    markers = [];
+}
+
+function displayPagination(pagination) {
+    var paginationEl = document.getElementById('pagination'),
+        fragment = document.createDocumentFragment(),
+        i;
+
+    while (paginationEl.hasChildNodes()) {
+        paginationEl.removeChild (paginationEl.lastChild);
+    }
+
+    for (i=1; i<=pagination.last; i++) {
+        var el = document.createElement('a');
+        el.href = "#";
+        el.innerHTML = i;
+
+        if (i===pagination.current) {
+            el.className = 'on';
+        } else {
+            el.onclick = (function(i) {
+                return function() {
+                    pagination.gotoPage(i);
+                }
+            })(i);
+        }
+
+        fragment.appendChild(el);
+    }
+    paginationEl.appendChild(fragment);
+}
+
+function displayInfowindow(marker, title) {
+    var content = '<div style="padding:5px;z-index:1;">' + title + '</div>';
+
+    infowindow.setContent(content);
+    infowindow.open(map1, marker);
+}
+
+function removeAllChildNods(el) {
+    while (el.hasChildNodes()) {
+        el.removeChild (el.lastChild);
+    }
+}
+</script>
+{% endblock rentalmap %}
+
+
+{% block cafeteria %}
+<section class="py-5" id="cafeteria">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="row gx-4 gx-lg-5">
+                <div class="col-md-4">
+                    <h2 class="fw-bolder mb-4">지도</h2>
+                </div>
+                <div class="col-md-8">
+                    <h2 class="fw-bolder mb-4">cafe</h2>
+                </div>
+            </div>
+            <div class="row gx-2 gx-lg-5 align-items-start">
+                <div class="col-md-4">
+                     <div id="map2" style="width:100%;height:450px;"></div>
+                     <script>
+                    var mapContainer = document.getElementById('map2'),
+                        mapOption = {
+                            center: new kakao.maps.LatLng(37.57904921648744, 126.99485317163106),
+                            level: 6
+                        };
+
+                    var map2 = new kakao.maps.Map(mapContainer, mapOption);
+
+                    function ChangeMark(p){
+                    var mapContainer = document.getElementById('map2'),
+                        mapOption = {
+                            center: new kakao.maps.LatLng(37.57904921648744, 126.99485317163106),
+                            level: 6
+                        };
+                    var map2 = new kakao.maps.Map(mapContainer, mapOption);
+                    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                        imageSize = new kakao.maps.Size(32, 35),
+                        imageOption = {offset: new kakao.maps.Point(27, 69)};
+                    var markerImage = new kakao.maps.MarkerImage('https://cdn.iconscout.com/icon/premium/png-512-thumb/cafe-location-2-802178.png', imageSize, imageOption);
+                    if (p === '서울커피') {
+                        markerPosition = new kakao.maps.LatLng(37.578881910718785, 127.00186253326224);
+                    }
+                    else if (p === '청수당') {
+                        markerPosition = new kakao.maps.LatLng(37.57399853620484, 126.98982241226182);
+                    }
+                    else if (p === '온') {
+                        markerPosition = new kakao.maps.LatLng(37.573326071792295, 126.99058048260109);
+                    }
+                    else if (p === '일월일일') {
+                        markerPosition = new kakao.maps.LatLng(37.582797477890956, 126.99809134439192);
+                    }
+                    else if (p === '끼룩하우스') {
+                        markerPosition = new kakao.maps.LatLng(37.57402583282352, 126.99055134109764);
+                    }
+                    else if (p === '카페온화') {
+                        markerPosition = new kakao.maps.LatLng(37.57361871789542, 126.98981826974033);
+                    }
+                    else if (p === '라미스콘') {
+                        markerPosition = new kakao.maps.LatLng(37.574108692559406, 126.99033341226178);
+                    }
+                    else if (p === '카페하이웨스트') {
+                        markerPosition = new kakao.maps.LatLng(37.57314899786329, 126.99063091088158);
+                    }
+
+                    var marker = new kakao.maps.Marker({
+                        position: markerPosition,
+                        image: markerImage
+                        });
+                    marker.setMap(map2);
+                    };
+                    </script>
+                </div>
+                <div class="col-md-8" style="text-align:center;">
+                    <div class="container px-4 px-lg-5">
+                     <div class="row gx-3 gx-lg-3 row-cols-2 row-cols-md-4">
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('서울커피')" style="width:100%;height:200px;">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://www.menupan.com/common/service/img_proxy.asp?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAxNzA5MjFfMjg4%2FMDAxNTA2MDAwNjQ3NTgz.cUY3OehlIWimz4bjyt0p2gQRKEhqMCsutWHkkmjqnQEg.y8WKiKIZpxPeRo-GTj4SEH3snCGhRL-z8iIqyE8rxqcg.JPEG.dan9199%2FDSC00795.jpg" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">서울커피</p>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('청수당')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://mblogthumb-phinf.pstatic.net/MjAyMDA1MjNfMTA4/MDAxNTkwMjA2MDY3Mzcy.cBN9L0vYloU_6S1i7GH6aR_k-n52kyNnfRC7K0C8Ld0g.PdrJ-ehb6XE1ISxg5S4T17AyVdsGMyuMuJIjq0dVhtMg.JPEG.gmlfk4375/IMG_3573.JPG?type=w800" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">청수당</p>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('온')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="http://www.seouldesign.or.kr/file/temp/2019/201903/e8d26b0b-a86c-4e80-983b-be075397dbc8" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">온</p>
+                                    </div>
+                                </button>
+                            </div>
+                             <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('일월일일')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://blog.kakaocdn.net/dn/cDoO50/btqAjOjZiRg/Mh786XErLwLwoVUSgdJ1b1/img.jpg" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">일월일일</p>
+                                    </div>
+                                </button>
+                            </div>
+                     </div>
+                    </div>
+                    <div class="container px-4 px-lg-5 mt-5">
+                        <div class="row gx-3 gx-lg-3 row-cols-2 row-cols-md-4">
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('끼룩하우스')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://mblogthumb-phinf.pstatic.net/MjAxOTEwMTVfMTQ0/MDAxNTcxMDY1NjY1MDYy.oIBegJG6qHf_kslYBeQxK7o6awOGSe8cwJkt5uyeyQQg.KSEHGgRy-4FYY2ExgSEA3UISdL3mzSiaEsiNnLTklbMg.PNG.barbieone/IMG_8496.png?type=w800" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">끼룩하우스</p>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('카페온화')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsJTt9TVvYUHA_XbEnwyd-rxZSUHV2HYzupw&usqp=CAU" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">카페온화</p>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('라미스콘')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://mblogthumb-phinf.pstatic.net/MjAyMDA3MjRfMjg2/MDAxNTk1NTc5NTgwMTYx.4Y7zjUbh3nr0LnVsgiscI0F7XYsK8o7T5FVUeDkI1Ecg.2eSBNPFqOG50CPZWzTwHtwEAs7Pji3I7VY2nmwmoFlYg.JPEG.thsutleo170717/1595579584434.jpg?type=w800" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">라미스콘</p>
+                                    </div>
+                                </button>
+                            </div>
+                             <div class="col-md-3">
+                                <button class="card1" onclick="ChangeMark('카페하이웨스트')" style="width:100%;height:200px">
+                                    <div class="card-body">
+                                        <h4 class="card-title"></h4>
+                                        <p class="card-text"><img src="https://mblogthumb-phinf.pstatic.net/MjAyMDA1MDhfMjgz/MDAxNTg4ODk5OTIzMjIw.a02NcnhVyMd-lqtAPxNRAvV6mkFZA98u66fmXxOCZDIg.Z7ZqZRcRF0qEiMwPUJhg8QiUEStXLzVyl7TWJiXINbgg.JPEG.msjh1012/SE-e4a63aff-83e4-4a55-bf06-81b599d21efe.jpg?type=w800" style="width:100%;height:100px;"></p>
+                                        <p class="card-link">카페하이웨스트</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock cafeteria %}
