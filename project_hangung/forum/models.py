@@ -9,10 +9,14 @@ class Question(models.Model):
     create_date = models.DateTimeField()
     modify_date = models.DateTimeField(null=True, blank=True)
     voter = models.ManyToManyField(User, related_name='voter_question')
+    gung = models.CharField(max_length=40, default = '경복궁')
 
     def __str__(self):
         return self.subject
 
+class Image(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, null=True)
+    photo = models.ImageField(upload_to="photo_%Y_%m_%d", blank=True, null=True)
 
 class Answer(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE,
