@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section xmlns="http://www.w3.org/1999/html">
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">질문등록</h5>
+    <form method="post" class="post-form my-3" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- 오류표시 Start -->
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+            {% for field in form %}
+                {% if field.errors %}
+                <strong>{{ field.label }}</strong>
+                {{ field.errors }}
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% endif %}
+        <!-- 오류표시 End -->
+        <div class="row my-3">
+            <div class="col-2">
+                <select name="gung">
+                    <option value="경복궁">경복궁</option>
+                    <option value="덕수궁">덕수궁</option>
+                    <option value="창덕궁">창덕궁</option>
+                    <option value="창경궁">창경궁</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="subject">제목</label>
+            <input type="text" class="form-control" name="subject" id="subject"
+                   value="{{ form.subject.value|default_if_none:'' }}">
+        </div>
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea class="form-control" name="content"
+                      id="content" rows="10">{{ form.content.value|default_if_none:'' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>이미지 업로드</label>
+            <input type="file" name="multiphoto" multiple>
+        </div>
+        <button style="font-family:'arirang';" type="submit" class="btn btn-primary">저장하기</button>
+    </form>
+</div>
+</section>
+{% endblock %}
